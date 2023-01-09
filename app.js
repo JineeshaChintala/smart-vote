@@ -367,3 +367,131 @@ app.use(
       }
     }
   );
+  app.get(
+  "/elections/:electionID/questions/:questionID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const question = await Questions.getQuestion(request.params.questionID);
+      return response.render("update_question", {
+        electionID: request.params.electionID,
+        questionID: request.params.questionID,
+        questionTitle: question.question,
+        questionDescription: question.description,
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//edit question
+app.put(
+  "/questions/:questionID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const updatedQuestion = await Questions.updateQuestion({
+        question: request.body.question,
+        description: request.body.description,
+        id: request.params.questionID,
+      });
+      return response.json(updatedQuestion);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Deleting the question
+app.delete(
+  "/elections/:electionID/questions/:questionID",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const nq = await Questions.getNumberOfQuestions(
+        request.params.electionID
+      );
+      if (nq > 1) {
+        const res = await Questions.deleteQuestion(request.params.questionID);
+        return response.json({ success: res === 1 });
+      } else {
+        return response.json({ success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//question page
+app.get(
+  "/elections/:id/questions/:questionID",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const question = await Questions.getQuestion(request.params.questionID);
+      const options = await Options.getOptions(request.params.questionID);
+      if (request.accepts("html")) {
+        response.render("question_page", {
+          title: question.question,
+          description: question.description,
+          id: request.params.id,
+          questionID: request.params.questionID,
+          options,
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        return response.json({
+          options,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Adding Options to Questions
+app.post(
+  "/elections/:id/questions/:questionID",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    if (!request.body.option.length) {
+      request.flash("error", "Please enter option");
+      return response.redirect("/elections");
+    }
+    try {
+      await Options.addOption({
+        option: request.body.option,
+        questionID: request.params.questionID,
+      });
+      return response.redirect(
+        `/elections/${request.params.id}/questions/${request.params.questionID}`
+      );
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Deleting Options
+app.delete(
+  "/options/:optionID",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const res = await Options.deleteOption(request.params.optionID);
+      return response.json({ success: res === 1 });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
