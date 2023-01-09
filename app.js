@@ -495,3 +495,143 @@ app.delete(
     }
   }
 );
+app.get(
+  "/elections/:electionID/questions/:questionID/options/:optionID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const option = await Options.getOption(request.params.optionID);
+      return response.render("update_option", {
+        option: option.option,
+        csrfToken: request.csrfToken(),
+        electionID: request.params.electionID,
+        questionID: request.params.questionID,
+        optionID: request.params.optionID,
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Update The Options
+app.put(
+  "/options/:optionID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const updatedOption = await Options.updateOption({
+        id: request.params.optionID,
+        option: request.body.option,
+      });
+      return response.json(updatedOption);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Voters Page
+app.get(
+  "/elections/:electionID/voters",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const voters = await Voter.getVoters(request.params.electionID);
+      const election = await Election.getElection(request.params.electionID);
+      if (request.accepts("html")) {
+        return response.render("voters", {
+          title: election.electionName,
+          id: request.params.electionID,
+          voters,
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        return response.json({
+          voters,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Show Voter into voter Page
+app.get(
+  "/elections/:electionID/voters/create",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    response.render("create_new_voter", {
+      title: "Add a voter to election",
+      electionID: request.params.electionID,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+//Post the Voter to voter page
+app.post(
+  "/elections/:electionID/voters/create",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    if (!request.body.voterid) {
+      request.flash("error", "Please enter voterID");
+      return response.redirect(
+        `/elections/${request.params.electionID}/voters/create`
+      );
+    }
+    if (!request.body.password) {
+      request.flash("error", "Please enter password");
+      return response.redirect(
+        `/elections/${request.params.electionID}/voters/create`
+      );
+    }
+    const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
+    try {
+      await Voter.createVoter({
+        voterid: request.body.voterid,
+        password: hashedPwd,
+        electionID: request.params.electionID,
+      });
+      return response.redirect(
+        `/elections/${request.params.electionID}/voters`
+      );
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//Delete the voter
+app.delete(
+  "/elections/:electionID/voters/:voterID",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const res = await Voter.deleteVoter(request.params.voterID);
+      return response.json({ success: res === 1 });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+//voter password reset page
+app.get(
+  "/elections/:electionID/voters/:voterID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    response.render("voter_resetpassword", {
+      title: "Reset voter password",
+      electionID: request.params.electionID,
+      voterID: request.params.voterID,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
