@@ -635,3 +635,35 @@ app.get(
     });
   }
 );
+app.post(
+  "/elections/:electionID/voters/:voterID/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    if (!request.body.new_password) {
+      request.flash("error", "Please enter a new password");
+      return response.redirect("/password-reset");
+    }
+    if (request.body.new_password.length < 8) {
+      request.flash("error", "Password length should be atleast 8");
+      return response.redirect("/password-reset");
+    }
+    const hashedNewPwd = await bcrypt.hash(
+      request.body.new_password,
+      saltRounds
+    );
+    try {
+      Voter.findOne({ where: { id: request.params.voterID } }).then((user) => {
+        user.resetPass(hashedNewPwd);
+      });
+      request.flash("success", "Password changed successfully");
+      return response.redirect(
+        `/elections/${request.params.electionID}/voters`
+      );
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+module.exports = app;
