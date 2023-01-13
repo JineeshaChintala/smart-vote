@@ -1,15 +1,15 @@
 {
   "development": {
     "username": "postgres",
-    "password": 1209,
-    "database": "ova_database_development",
+    "password": "1209",
+    "database": "voteElection",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": 1209,
-    "database": "ova_database_test",
+    "password": "1209",
+    "database": "voteElection_test",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
