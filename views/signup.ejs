@@ -19,7 +19,7 @@
                 <% } %>
             </div>
             <div class="mt-4 bg-white shadow-md rounded-lg text-left">
-                <div class="h-2 bg-red-400 rounded-t-md"></div>
+                
                 <form action="/admin" method="post" class="px-8 py-6">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <label for="firstName" class="block mt-3 font-semibold">First name</label>
@@ -30,7 +30,7 @@
                     <input id="email" name="email" type="email" placeholder="Email" class="border w-full h-5 px-3 py-5 mt-2 hover:outline-none focus:outline-none focus:ring-indigo-500 focus:ring-1 rounded-md" required>
                     <label for="password" class="block mt-3 font-semibold">Password</label>
                     <input id="password" name="password" type="password" placeholder="Password" class="border w-full h-5 px-3 py-5 mt-2 hover:outline-none focus:outline-none focus:ring-indigo-500 focus:ring-1 rounded-md" required>
-                    <button type="submit" class="mt-6 bg-red-500 w-full text-white py-2 px-6 rounded-md hover:bg-red-600 ">Create account ✔</button>
+                    <button type="submit" class="mt-6 bg-red-500 w-full text-white py-2 px-6 rounded-md hover:bg-red-600 ">Sign Up</button>
                 </form>
             </div>
             <div class="mt-4">

@@ -289,7 +289,7 @@ app.use(
           request.params.id
         );
         const numberOfVoters = await Voter.getNumberOfVoters(request.params.id);
-        return response.render("election_homepage", {
+        return response.render("election_home_page", {
           id: request.params.id,
           title: election.electionName,
           nq: numberOfQuestions,
