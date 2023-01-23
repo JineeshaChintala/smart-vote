@@ -7,36 +7,40 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-
-    resetPass(password) {
+    resetPassword(password) {
       return this.update({ password });
     }
-
-    static createAdmin({ firstName, lastName, email, password }) {
-      return this.create({
-        firstName,
-        lastName,
-        email,
-        password,
-      });
-    }
-
     static associate(models) {
       // define association here
       Admin.hasMany(models.Election, {
-        foreignKey: "adminID",
+        foreignKey: "adminId",
       });
     }
   }
   Admin.init(
     {
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      email: {
+      firstName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      password: DataTypes.STRING,
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      isWho: {
+        type: DataTypes.STRING,
+        defaultValue: "admin",
+      },
+      email: DataTypes.STRING,
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          notNull: true,
+          len: 8,
+        },
+      },
     },
     {
       sequelize,

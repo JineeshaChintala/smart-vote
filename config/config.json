@@ -2,14 +2,14 @@
   "development": {
     "username": "postgres",
     "password": "1209",
-    "database": "voteElection",
+    "database": "OnlineVotingDb",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
     "password": "1209",
-    "database": "voteElection_test",
+    "database": "OnlineVotingTestDb",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
